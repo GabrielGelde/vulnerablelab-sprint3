@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Demonstracao de Renderizacao Segura</title>
+</head>
+<body>
+  <h1>Renderizacao segura de conteudo do usuario</h1>
+  <p>Esta pagina demonstra o caminho correto: usar <code>textContent</code> em vez de <code>innerHTML</code>.</p>
+  <p><strong>Nota:</strong> a versao anterior usava <code>innerHTML</code> para ilustrar XSS. A correcao tambem foi aplicada no backend
+     (o texto e escapado com <code>HtmlUtils.htmlEscape</code> antes de ser persistido).</p>
+
+  <label>Comentario:</label>
+  <input id="comment" value="Texto comum do usuario" />
+  <button onclick="renderizar()">Renderizar</button>
+
+  <h2>Saida A — textContent (seguro)</h2>
+  <div id="safeOutput"></div>
+
+  <h2>Saida B — textContent (seguro)</h2>
+  <div id="unsafeOutput"></div>
+
+  <p><strong>Discussao:</strong> frameworks costumam escapar conteudo por padrao em templates,
+     mas o desenvolvedor pode criar risco ao forcar HTML bruto sem sanitizacao.
+     A defesa correta esta em usar <code>textContent</code> no frontend E escapar no backend antes de persistir.</p>
+
+  <script>
+    function renderizar() {
+      const valor = document.getElementById("comment").value;
+      // Sprint 02 - Fase 2: ambas as saidas usam textContent (caminho seguro)
+      document.getElementById("safeOutput").textContent = valor;
+      document.getElementById("unsafeOutput").textContent = valor;
+    }
+  </script>
+</body>
+</html>

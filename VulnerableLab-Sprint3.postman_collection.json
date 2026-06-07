@@ -1,0 +1,225 @@
+{
+  "info": {
+    "name": "VulnerableLab — Sprint 3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8081" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar usuário",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gabriel\",\n  \"email\": \"gabriel@teste.com\",\n  \"password\": \"senha123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (salva token automaticamente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('Token salvo:', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gabriel@teste.com\",\n  \"password\": \"senha123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fase 3 — Erros Estruturados",
+      "item": [
+        {
+          "name": "Erro 401 — sem token",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        {
+          "name": "Erro 404 — usuário inexistente",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/users/9999"
+          }
+        },
+        {
+          "name": "Erro 400 — validação (campo inválido)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"email\": \"emailinvalido\",\n  \"password\": \"123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Erro 403 — rota ADMIN sem permissão",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/admin/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fase 4 — Paginação",
+      "item": [
+        {
+          "name": "Produtos — página 0, 5 itens",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/products?page=0&size=5&sort=name"
+          }
+        },
+        {
+          "name": "Usuários — paginado",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/users?page=0&size=10&sort=name"
+          }
+        },
+        {
+          "name": "Busca de usuários — paginada",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/users/search?term=gabriel&page=0&size=10"
+          }
+        },
+        {
+          "name": "Comentários por produto — paginado",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/api/comments/product/1?page=0&size=10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fase 4 — Rate Limiting (429)",
+      "item": [
+        {
+          "name": "Requisição normal",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/products"
+          }
+        },
+        {
+          "name": "DISPARO RÁPIDO — envie 31+ vezes para ver 429",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code', function() {",
+                  "  console.log('Status:', pm.response.status);",
+                  "  console.log('Body:', pm.response.text());",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/products"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dados — Criar produto (ADMIN)",
+      "item": [
+        {
+          "name": "Login ADMIN (salva token ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('Token ADMIN salvo:', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@lab.local\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Criar produto",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Notebook Dell\",\n  \"description\": \"Notebook i7 16GB\",\n  \"price\": 3500.00\n}"
+            }
+          }
+        },
+        {
+          "name": "Criar comentário",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/comments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Produto excelente!\",\n  \"productId\": 1\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

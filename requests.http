@@ -1,0 +1,153 @@
+@base_url = http://localhost:8081
+
+### ==========================================
+### AUTH
+### ==========================================
+
+### 1) Registrar usuário
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Gabriel",
+  "email": "gabriel@teste.com",
+  "password": "senha123"
+}
+
+###
+
+### 2) Login — token salvo automaticamente em {{token}}
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "gabriel@teste.com",
+  "password": "senha123"
+}
+
+> {%
+  client.global.set("token", response.body.token);
+  client.log("Token salvo: " + response.body.token);
+%}
+
+###
+
+### 2b) Login ADMIN — token salvo automaticamente em {{token}}
+POST {{base_url}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@lab.local",
+  "password": "admin123"
+}
+
+> {%
+  client.global.set("token", response.body.token);
+  client.log("Token ADMIN salvo: " + response.body.token);
+%}
+
+###
+
+### ==========================================
+### FASE 3 — ERROS ESTRUTURADOS
+### ==========================================
+
+### 3) Erro 401 — sem token (esperado: {timestamp, status:401, error, path})
+GET {{base_url}}/api/users
+
+###
+
+### 4) Erro 404 — usuário inexistente
+GET {{base_url}}/api/users/9999
+Authorization: Bearer {{token}}
+
+###
+
+### 5) Erro 400 — validação (campos inválidos)
+POST {{base_url}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "",
+  "email": "emailinvalido",
+  "password": "123"
+}
+
+###
+
+### 6) Erro 403 — rota ADMIN com token de USER comum
+GET {{base_url}}/api/admin/users
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### FASE 4 — PAGINAÇÃO
+### ==========================================
+
+### 7) Produtos paginados (page=0, size=5, ordenado por nome)
+GET {{base_url}}/api/products?page=0&size=5&sort=name
+Authorization: Bearer {{token}}
+
+###
+
+### 8) Usuários paginados
+GET {{base_url}}/api/users?page=0&size=10&sort=name
+Authorization: Bearer {{token}}
+
+###
+
+### 9) Busca de usuários paginada
+GET {{base_url}}/api/users/search?term=gabriel&page=0&size=10
+Authorization: Bearer {{token}}
+
+###
+
+### 10) Comentários por produto paginados
+GET {{base_url}}/api/comments/product/1?page=0&size=10
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### FASE 4 — RATE LIMITING
+### ==========================================
+
+### 11) Rate Limiting — envie 30+ vezes rápido para ver HTTP 429
+GET {{base_url}}/api/products
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### DADOS — CRIAR PRODUTO E COMENTÁRIO (ADMIN)
+### ==========================================
+
+### 12) Criar produto (requer token ADMIN do request 2b)
+POST {{base_url}}/api/products
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Notebook Dell",
+  "description": "Notebook i7 16GB",
+  "price": 3500.00
+}
+
+###
+
+### 13) Criar comentário
+POST {{base_url}}/api/comments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "text": "Produto excelente!",
+  "productId": 1
+}
+
+###
+
+### 14) Admin — listar usuários paginado (requer token ADMIN)
+GET {{base_url}}/api/admin/users?page=0&size=10
+Authorization: Bearer {{token}}

@@ -1,0 +1,31 @@
+# Sprint 03 - Fase 4: Dependabot — monitoramento automático de dependências vulneráveis
+# O GitHub verifica semanalmente novas CVEs e abre PRs automáticos com atualizações.
+# Documentação: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+
+updates:
+  # Monitoramento das dependências Maven (Java/Spring Boot)
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Monitoramento das GitHub Actions (CI/CD pipelines)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+    labels:
+      - "dependencies"
+      - "ci"

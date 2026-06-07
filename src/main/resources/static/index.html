@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Spring Vulnerable Lab</title>
+</head>
+<body>
+  <h1>Spring Vulnerable Lab</h1>
+  <p>Laboratorio para discutir seguranca em frameworks.</p>
+  <ul>
+    <li><a href="/xss-demo.html">Demonstracao de renderizacao</a></li>
+  </ul>
+
+  <!--
+    Sprint 02 - Fase 1, item 2: botao admin oculto via JS removido (seguranca por obscuridade).
+    A protecao real esta no backend: /api/admin/** exige role ADMIN via Spring Security.
+  -->
+  <a href="/api/admin/users">Area administrativa</a>
+  <p><small>O acesso acima retornara 403 se voce nao estiver autenticado como ADMIN.</small></p>
+</body>
+</html>
