@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 /**
  * Sprint 03 - Fase 3: envelope padronizado {status, error, path, timestamp};
- * razões de 5xx suprimidas externamente para evitar vazamento de detalhe interno.
  */
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
